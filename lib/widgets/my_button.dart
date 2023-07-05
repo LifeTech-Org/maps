@@ -6,7 +6,7 @@ class MyButton extends StatefulWidget {
       {super.key,
       required label,
       buttonType = ButtonType.primary,
-      required function,
+      required VoidCallback function,
       required icon})
       : _label = label,
         _buttonType = buttonType,
@@ -14,7 +14,7 @@ class MyButton extends StatefulWidget {
         _icon = icon;
   final String _label;
   final ButtonType _buttonType;
-  final Function _function;
+  final VoidCallback _function;
   final IconData _icon;
   @override
   State<MyButton> createState() => _MyButtonState();

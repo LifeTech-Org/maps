@@ -1,76 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:maps/providers/user.dart';
+import 'package:maps/resources/vehicles.dart';
+import 'package:maps/utils/role.dart';
 import 'package:maps/utils/vehicle.dart';
+import 'package:maps/widgets/shimmer.dart';
+import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
-  EditProfile({super.key, Vehicle? vehicle, required changeVehicle})
-      : _vehicle = vehicle,
-        _changeVehicle = changeVehicle;
-  final Vehicle? _vehicle;
-  final Function(Vehicle vehicle) _changeVehicle;
+  const EditProfile({
+    super.key,
+  });
+  // final Function()? _setUserRole;
 
   @override
   State<EditProfile> createState() => _EditProfileState();
 }
 
 class _EditProfileState extends State<EditProfile> {
-  final List<Vehicle> _vehicles = [
-    Vehicle(
-      vehicleType: VehicleType.tricycle,
-      noOfSeaters: 3,
-    ),
-    Vehicle(
-      vehicleType: VehicleType.sedan,
-      noOfSeaters: 4,
-    ),
-    Vehicle(
-      vehicleType: VehicleType.stationWagon,
-      noOfSeaters: 6,
-    ),
-    Vehicle(
-      vehicleType: VehicleType.miniBus,
-      noOfSeaters: 13,
-    ),
-    Vehicle(
-      vehicleType: VehicleType.miniBus,
-      noOfSeaters: 18,
-    ),
-  ];
-  Vehicle? selectedVehicle;
+  int? selectedIndex;
 
   @override
   void initState() {
     super.initState();
-    selectedVehicle = widget._vehicle;
+    selectedIndex = Provider.of<User>(context, listen: false).vehicleIndex;
   }
 
-  void handleChangeSelectedVehicle(Vehicle? newVehicle) {
+  void handleChangeSelectedVehicle(int? newSelectedIndex) {
     setState(() {
-      selectedVehicle = newVehicle;
+      selectedIndex = newSelectedIndex;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final vehicle = Provider.of<User>(context, listen: false).vehicle;
     return AlertDialog(
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 0,
         vertical: 8,
       ),
       title: Text(
-        widget._vehicle == null
-            ? "Set driving profile"
-            : "Change driving profile",
+        vehicle == null ? "Set driving profile" : "Change driving profile",
       ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(
-            _vehicles.length,
+            vehicles.length,
             (index) {
-              final vehicle = _vehicles.elementAt(index);
-              return RadioListTile(
-                value: vehicle,
-                groupValue: selectedVehicle,
+              final vehicle = vehicles.elementAt(index);
+              return RadioListTile<int>(
+                value: index,
+                groupValue: selectedIndex,
                 onChanged: handleChangeSelectedVehicle,
                 title: Text(
                   vehicle.name(),
@@ -97,14 +78,24 @@ class _EditProfileState extends State<EditProfile> {
         ),
         TextButton(
           onPressed: () {
-            if (selectedVehicle != null) {
-              print("he");
-              widget._changeVehicle(selectedVehicle!);
+            if (selectedIndex != null) {
+              Provider.of<User>(context, listen: false)
+                  .setVehicleIndex(selectedIndex!)
+                  .then((value) {
+                Navigator.of(context).pop();
+              });
+              // Provider.of<User>(context, listen: false)
+              //     .setUserRole(UserRole.driver);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('No driving profile has been selected!'),
+              ));
             }
           },
           child: const Text('Confirm'),
         ),
       ],
     );
+    ;
   }
 }

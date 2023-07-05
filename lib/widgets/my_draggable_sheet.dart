@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:maps/logic/float_height.dart';
-import 'package:maps/logic/user.dart';
+import 'package:maps/models/user.dart';
+import 'package:maps/providers/float_height.dart';
+import 'package:maps/providers/server.dart';
+import 'package:maps/providers/user.dart';
 import 'package:maps/utils/button.dart';
 import 'package:maps/utils/role.dart';
 import 'package:maps/utils/vehicle.dart';
 import 'package:maps/widgets/edit_profile.dart';
 import 'package:maps/widgets/my_button.dart';
 import 'package:provider/provider.dart';
+import 'package:maps/widgets/shimmer.dart';
 
 class MyDraggableSheet extends StatefulWidget {
   const MyDraggableSheet({super.key});
@@ -18,19 +21,28 @@ class _MyDraggableSheetState extends State<MyDraggableSheet> {
   final DraggableScrollableController _controller =
       DraggableScrollableController();
 
+  void changeHeight() {
+    Provider.of<FloatingHeight>(context, listen: false)
+        .setHeight(_controller.pixels);
+  }
+
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
-      Provider.of<FLoatingHeight>(context, listen: false)
-          .setHeight(_controller.pixels);
-    });
+    _controller.addListener(changeHeight);
   }
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
+  }
+
+  void showEditProfile() {
+    showDialog(
+      context: context,
+      builder: (context) => EditProfile(),
+    );
   }
 
   @override
@@ -55,7 +67,7 @@ class _MyDraggableSheetState extends State<MyDraggableSheet> {
                   Container(
                     margin: const EdgeInsets.only(top: 5),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.vertical(
+                      borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
                       boxShadow: [
@@ -88,26 +100,50 @@ class _MyDraggableSheetState extends State<MyDraggableSheet> {
                           height: 60,
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: Colors.red,
-                                    radius: 20,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    user.role == UserRole.driver
-                                        ? "Driver"
-                                        : "Passenger",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  )
-                                ],
-                              )
+                              Icon(
+                                user.role == UserRole.driver
+                                    ? Icons.drive_eta_rounded
+                                    : Icons.person_2_rounded,
+                                size: 35,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                user.role == UserRole.driver
+                                    ? "Driver"
+                                    : "Passenger",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const Spacer(),
+                              user.destination == null
+                                  ? Switch(
+                                      value: false,
+                                      onChanged: (value) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Select a point on the map to set destination.'),
+                                          ),
+                                        );
+                                      })
+                                  : (user.connectionState ==
+                                          ConnectionState.waiting
+                                      ? MyShimmer(width: 60, height: 30)
+                                      : Switch(
+                                          value: true,
+                                          onChanged: (value) {
+                                            user.cancelDestination();
+                                            Provider.of<Server>(context,
+                                                    listen: false)
+                                                .socket
+                                                .sink
+                                                .close();
+                                          })),
                             ],
                           ),
                         ),
@@ -119,53 +155,89 @@ class _MyDraggableSheetState extends State<MyDraggableSheet> {
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: Column(
                             children: [
-                              user.role == UserRole.driver
+                              (user.role == UserRole.driver
                                   ? Column(
                                       children: [
-                                        SizedBox(
+                                        const SizedBox(
                                           height: 10,
                                         ),
                                         MyButton(
-                                          label: "Edit Profile",
+                                          label:
+                                              "${user.vehicleIndex == null ? "Set" : "Edit"} Profile",
                                           buttonType: ButtonType.secondary,
                                           icon: Icons.edit_square,
                                           function: () {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) => EditProfile(
-                                                vehicle: user.vehicle,
-                                                changeVehicle:
-                                                    (Vehicle vehicle) => {
-                                                  user.setVehicle(
-                                                    vehicle.vehicleType,
-                                                    vehicle.noOfSeaters,
-                                                  ),
-                                                },
-                                              ),
-                                            );
+                                            if (user.destination == null) {
+                                              _controller.reset();
+                                              showEditProfile();
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      'Please cancel destination before modifying profile!'),
+                                                ),
+                                              );
+                                            }
                                           },
                                         ),
                                       ],
                                     )
-                                  : const SizedBox(),
+                                  : const SizedBox()),
                               const SizedBox(
                                 height: 10,
                               ),
-                              user.role == UserRole.driver
+                              (user.role == UserRole.driver
                                   ? MyButton(
                                       label: "Switch to passenger",
                                       icon: Icons.loop,
                                       function: () {
-                                        user.setUserRole(UserRole.passenger);
+                                        if (user.destination == null) {
+                                          _controller.reset();
+                                          user.setUserRole(UserRole.passenger);
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                  'Please cancel destination before switching role!'),
+                                              action: SnackBarAction(
+                                                  label: 'Cancel destination',
+                                                  onPressed: () {
+                                                    user.cancelDestination();
+                                                    Provider.of<Server>(context,
+                                                            listen: false)
+                                                        .socket
+                                                        .sink
+                                                        .close();
+                                                  }),
+                                            ),
+                                          );
+                                        }
                                       },
                                     )
                                   : MyButton(
                                       label: "Switch to driver",
                                       icon: Icons.loop,
                                       function: () {
-                                        user.setUserRole(UserRole.driver);
+                                        if (user.destination == null) {
+                                          _controller.reset();
+                                          user.setUserRole(UserRole.driver);
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                  'Please cancel destination before switching role!'),
+                                              action: SnackBarAction(
+                                                  label: 'Cancel destination',
+                                                  onPressed: () =>
+                                                      user.cancelDestination()),
+                                            ),
+                                          );
+                                        }
                                       },
-                                    ),
+                                    )),
                               const SizedBox(
                                 height: 20,
                               ),

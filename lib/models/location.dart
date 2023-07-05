@@ -14,6 +14,10 @@ class Location {
   void setPlace(String name, String address) {
     _place = Place(name: name, address: address);
   }
+
+  Map<String, dynamic> toJson() {
+    return {"latitude": _latitude, "longitude": _longitude};
+  }
 }
 
 class Place {
