@@ -1,14 +1,21 @@
 class Location {
-  Location({required double latitude, required double longitude, Place? place})
+  Location(
+      {required double latitude,
+      required double longitude,
+      double? heading,
+      Place? place})
       : _latitude = latitude,
         _longitude = longitude,
+        _heading = heading,
         _place = place;
   final double _latitude;
   final double _longitude;
+  final double? _heading;
   Place? _place;
 
   double get latitude => _latitude;
   double get longitude => _longitude;
+  double? get heading => _heading;
   Place? get place => _place;
 
   void setPlace(String name, String address) {

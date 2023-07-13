@@ -20,6 +20,8 @@ class UserModel {
 
   ConnectionState _connectionState = ConnectionState.none;
 
+  final List<Location> _wayPoints = [];
+
   UserRole get role => _userRole;
 
   int? get vehicleIndex => _vehilceIndex;
@@ -32,8 +34,24 @@ class UserModel {
 
   ConnectionState get connectionState => _connectionState;
 
+  List<Location> get wayPoints => _wayPoints;
+
   void setRole(UserRole userRole) {
     _userRole = userRole;
+  }
+
+  void addWayPoint(
+    double latitude,
+    double longitude,
+  ) {
+    _wayPoints.add(Location(
+      latitude: latitude,
+      longitude: longitude,
+    ));
+  }
+
+  void clearPoint() {
+    _wayPoints.clear();
   }
 
   void setVehicle(VehicleType vehicleType, int noOfSeaters) {
@@ -50,8 +68,9 @@ class UserModel {
         Location(latitude: latitude, longitude: longitude, place: place);
   }
 
-  void setLocation(double latitude, double longitude) {
-    _location = Location(latitude: latitude, longitude: longitude);
+  void setLocation(double latitude, double longitude, double heading) {
+    _location =
+        Location(latitude: latitude, longitude: longitude, heading: heading);
   }
 
   void setVehicleIndex(int? index) {

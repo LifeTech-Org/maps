@@ -1,14 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:maps/models/location.dart';
+import 'package:maps/providers/server.dart';
+import 'package:maps/providers/user.dart';
 import 'package:maps/widgets/Search.dart';
+import 'package:maps/widgets/destination.dart';
+import 'package:provider/provider.dart';
 
-class Destinations extends StatelessWidget {
-  Destinations({super.key});
+class Destinations extends StatefulWidget {
+  const Destinations({super.key});
+
+  @override
+  State<Destinations> createState() => _DestinationsState();
+}
+
+class _DestinationsState extends State<Destinations> {
+  String search = '';
+
+  void setSearch(String place) {
+    setState(() {
+      search = place;
+    });
+  }
+
   final List<Location> popular = [
     Location(
       latitude: 0.00,
       longitude: 0.00,
       place: Place(
+        name: "Adugbo",
+        address: "Some kind of home address",
+      ),
+    ),
+    Location(
+      latitude: 0.00,
+      longitude: 0.00,
+      place: Place(
+        name: "Agbowo",
+        address: "Some kind of home address",
+      ),
+    ),
+    Location(
+      latitude: 0.00,
+      longitude: 0.00,
+      place: Place(
+        name: "Zion Place",
+        address: "Some kind of home address",
+      ),
+    ),
+    Location(
+      latitude: 0.00,
+      longitude: 0.00,
+      place: Place(
+        name: "Home",
+        address: "Some kind of home address",
+      ),
+    ),
+    Location(
+      latitude: 0.00,
+      longitude: 0.00,
+      place: Place(
+        name: "Home",
+        address: "Some kind of home address",
+      ),
+    ),
+    Location(
+      latitude: 0.00,
+      longitude: 0.00,
+      place: Place(
+        name: "Home",
+        address: "Some kind of home address",
+      ),
+    ),
+    Location(
+      latitude: 0.00,
+      longitude: 0.00,
+      place: Place(
         name: "Home",
         address: "Some kind of home address",
       ),
@@ -39,47 +105,15 @@ class Destinations extends StatelessWidget {
     )
   ];
 
-  final List<Location> recents = [
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    )
-  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            const Search(),
+            Search(
+              setSearch: setSearch,
+            ),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -89,17 +123,17 @@ class Destinations extends StatelessWidget {
                       height: 12,
                       color: Theme.of(context).highlightColor,
                     ),
-                    ListBox(
-                        locations: popular,
-                        icon: Icons.access_time_sharp,
-                        title: 'Recents'),
                     Divider(
                       thickness: 12,
                       height: 12,
                       color: Theme.of(context).highlightColor,
                     ),
                     ListBox(
-                      locations: recents,
+                      locations: popular
+                          .where((location) => location.place!.name
+                              .toLowerCase()
+                              .contains(search.toLowerCase()))
+                          .toList(),
                       icon: Icons.favorite,
                       title: 'Popular bus stops',
                     ),
@@ -152,21 +186,45 @@ class ListBox extends StatelessWidget {
           ),
           Column(
             children: List.generate(locations.length, (index) {
+              final location = locations.elementAt(index);
               return Column(
                 children: [
                   ListTile(
                     leading: Icon(icon),
                     title: Text(
-                      locations.elementAt(index).place!.name,
+                      location.place!.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     subtitle: Text(
-                      locations.elementAt(index).place!.address,
+                      location.place!.address,
                       style: Theme.of(context).textTheme.labelMedium,
                     ),
                     dense: true,
                     onTap: () {
-                      print("here");
+                      final user = Provider.of<User>(context, listen: false);
+                      final server =
+                          Provider.of<Server>(context, listen: false);
+                      if (user.destination != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text('You are on a destination already!'),
+                          action: SnackBarAction(
+                              label: 'Stop',
+                              onPressed: () => server.closeWebSocket()),
+                        ));
+                      } else {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => Destination(
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                          ),
+                        ).then((value) {
+                          if (user.destination != null) {
+                            Navigator.of(context).pop();
+                          }
+                        });
+                      }
                     },
                   ),
                   index < locations.length - 1

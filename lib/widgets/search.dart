@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:maps/screens/destinations.dart';
 
 class Search extends StatefulWidget {
-  const Search({super.key});
+  const Search({super.key, required this.setSearch});
+  final Function(String search) setSearch;
   @override
   State<Search> createState() => _SearchState();
 }
@@ -11,9 +11,13 @@ class _SearchState extends State<Search> {
   final TextEditingController _controller = TextEditingController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -26,6 +30,9 @@ class _SearchState extends State<Search> {
           icon: Icon(Icons.arrow_back)),
       hintText: 'Search from pupular bus stops',
       controller: _controller,
+      onChanged: (value) {
+        widget.setSearch(value);
+      },
     );
   }
 }

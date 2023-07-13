@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:maps/helpers/permissions.dart';
 import 'package:maps/models/location.dart';
 import 'package:maps/models/user.dart';
-import 'package:maps/resources/vehicles.dart';
 import 'package:maps/utils/role.dart';
 import 'package:maps/utils/vehicle.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart' as geo_location;
 
 class User extends ChangeNotifier {
   final UserModel _userModel = UserModel(userRole: UserRole.passenger);
@@ -23,6 +24,25 @@ class User extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> listenToLocation() async {
+    bool isPermitted = await hasPermission();
+    if (isPermitted) {
+      geo_location.Location location = geo_location.Location();
+      location.onLocationChanged.listen((locationData) {
+        if (locationData.latitude != null && locationData.longitude != null) {
+          print({
+            "latitude": locationData.latitude,
+            "longitude": locationData.longitude,
+            "heading": locationData.heading
+          });
+          _userModel.setLocation(locationData.latitude!,
+              locationData.longitude!, locationData.heading!);
+          notifyListeners();
+        }
+      });
+    }
+  }
+
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
@@ -35,6 +55,8 @@ class User extends ChangeNotifier {
   Location? get destination => _userModel.destination;
 
   Location? get location => _userModel.location;
+
+  List<Location> get wayPoints => _userModel.wayPoints;
 
   Completer<GoogleMapController> get controller => _controller;
 
@@ -66,8 +88,9 @@ class User extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setLocation(double latitude, double longitude) async {
-    _userModel.setLocation(latitude, longitude);
+  Future<void> setLocation(
+      double latitude, double longitude, double heading) async {
+    _userModel.setLocation(latitude, longitude, heading);
     notifyListeners();
   }
 
@@ -78,5 +101,16 @@ class User extends ChangeNotifier {
 
   void setConnectionState(ConnectionState state) {
     _userModel.setConnectionState(state);
+    notifyListeners();
+  }
+
+  void addWayPoint(double latitude, double longitude) {
+    _userModel.addWayPoint(latitude, longitude);
+    notifyListeners();
+  }
+
+  void clearWayPoint() {
+    _userModel.clearPoint();
+    notifyListeners();
   }
 }

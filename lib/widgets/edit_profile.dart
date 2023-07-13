@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:maps/providers/user.dart';
 import 'package:maps/resources/vehicles.dart';
-import 'package:maps/utils/role.dart';
-import 'package:maps/utils/vehicle.dart';
-import 'package:maps/widgets/shimmer.dart';
 import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({
     super.key,
   });
-  // final Function()? _setUserRole;
 
   @override
   State<EditProfile> createState() => _EditProfileState();

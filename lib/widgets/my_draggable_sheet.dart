@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:maps/models/user.dart';
 import 'package:maps/providers/float_height.dart';
 import 'package:maps/providers/server.dart';
 import 'package:maps/providers/user.dart';
 import 'package:maps/utils/button.dart';
 import 'package:maps/utils/role.dart';
-import 'package:maps/utils/vehicle.dart';
 import 'package:maps/widgets/edit_profile.dart';
 import 'package:maps/widgets/my_button.dart';
 import 'package:provider/provider.dart';
@@ -133,16 +131,13 @@ class _MyDraggableSheetState extends State<MyDraggableSheet> {
                                       })
                                   : (user.connectionState ==
                                           ConnectionState.waiting
-                                      ? MyShimmer(width: 60, height: 30)
+                                      ? const MyShimmer(width: 60, height: 30)
                                       : Switch(
                                           value: true,
                                           onChanged: (value) {
-                                            user.cancelDestination();
                                             Provider.of<Server>(context,
                                                     listen: false)
-                                                .socket
-                                                .sink
-                                                .close();
+                                                .closeWebSocket();
                                           })),
                             ],
                           ),

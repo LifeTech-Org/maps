@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:maps/providers/server.dart';
 import 'package:maps/providers/user.dart';
 import 'package:maps/models/location.dart';
-import 'package:maps/utils/role.dart';
+import 'package:maps/widgets/shimmer.dart';
 import 'package:maps/widgets/skeletons/destination.dart';
 import 'package:provider/provider.dart';
-import 'package:maps/utils/connection_state.dart';
 
 class Destination extends StatefulWidget {
   const Destination(
@@ -54,33 +53,39 @@ class _DestinationState extends State<Destination> {
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.lock_clock,
-                        size: 16,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        'Estimated duration: ',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      Text(
-                        snapshot.data!['time'] ?? "*",
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  )
+                  // Row(
+                  //   crossAxisAlignment: CrossAxisAlignment.center,
+                  //   children: [
+                  //     const Icon(
+                  //       Icons.lock_clock,
+                  //       size: 16,
+                  //     ),
+                  //     const SizedBox(
+                  //       width: 5,
+                  //     ),
+                  //     Text(
+                  //       'Estimated duration: ',
+                  //       style: Theme.of(context).textTheme.bodyMedium,
+                  //     ),
+                  //     Text(
+                  //       snapshot.data!['time'] ?? "*",
+                  //       style: Theme.of(context).textTheme.titleSmall,
+                  //     ),
+                  //   ],
+                  // )
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, 'Cancel'),
-                  child: const Text('Cancel'),
-                ),
+                Consumer<User>(builder: (context, user, widget) {
+                  return TextButton(
+                      onPressed: () => Navigator.pop(context, 'Cancel'),
+                      child: user.connectionState == ConnectionState.waiting
+                          ? const MyShimmer(
+                              height: 20,
+                              width: 80,
+                            )
+                          : const Text('Cancel'));
+                }),
                 Consumer<User>(builder: (context, user, widget) {
                   return TextButton(
                     onPressed: () {
@@ -91,12 +96,14 @@ class _DestinationState extends State<Destination> {
                         final parsel = {
                           "location": {
                             "latitude": user.location!.latitude,
-                            "longitude": user.location!.longitude
+                            "longitude": user.location!.longitude,
+                            "heading": user.location!.heading,
                           },
                           "destination": {
                             "latitude": latitude,
                             "longitude": longitude
-                          }
+                          },
+                          "vehicleIndex": user.vehicleIndex,
                         };
                         Provider.of<Server>(context, listen: false)
                             .socket
@@ -106,35 +113,31 @@ class _DestinationState extends State<Destination> {
                           latitude,
                           longitude,
                           Place(
-                              name: 'UI Gate',
-                              address:
-                                  'Some notable address of UI gate intentionally made long to test how well its overlow'),
+                              name: snapshot.data!['address']!,
+                              address: snapshot.data!['address']!),
                         );
-                        user.setConnectionState(ConnectionState.done);
                         Navigator.pop(context);
                       }).catchError((e) {
-                        print(e);
+                        user.setConnectionState(ConnectionState.done);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Couldn't connect to server")));
                       });
-
-                      user.setConnectionState(ConnectionState.done);
                     },
                     child: user.connectionState == ConnectionState.waiting
-                        ? const CircularProgressIndicator()
+                        ? const MyShimmer(
+                            height: 20,
+                            width: 100,
+                          )
                         : const Text('Set as destination'),
                   );
                 }),
               ],
             );
           }
-          if (snapshot.hasError) {
-            return const AlertDialog(
-              title: Text('Oooppsss'),
-              content: Text('something went wrong'),
-            );
-          }
           return const AlertDialog(
-            title: Text('Whats this place?'),
-            content: Text('Somewhow we couldnt find this place'),
+            title: Text('Oooppsss'),
+            content: Text('something went wrong'),
           );
         });
   }

@@ -19,10 +19,6 @@ class DestinationSkeleton extends StatelessWidget {
           SizedBox(
             height: 10,
           ),
-          MyShimmer(
-            width: double.infinity,
-            height: 10,
-          )
         ],
       ),
       actions: [

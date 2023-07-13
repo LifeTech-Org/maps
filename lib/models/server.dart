@@ -5,12 +5,20 @@ import 'package:maps/interfaces/server.dart';
 import 'package:http/http.dart' as http;
 
 class ServerModel implements ServerRepository {
+  static bool isLocalhost = false;
+
+  final String prefix = isLocalhost
+      ? "ws://192.168.43.206:3000"
+      : "ws://maps-server-ndqjs3whnq-uc.a.run.app";
+  final String wsip = isLocalhost
+      ? "http://192.168.43.206:3000"
+      : "https://maps-server-ndqjs3whnq-uc.a.run.app";
   @override
   Future<Map<String, String>> getPlace(
       double latitude, double longitude) async {
     try {
-      final response = await http.get(Uri.parse(
-          'https://maps-server-ndqjs3whnq-uc.a.run.app/place?latitude=$latitude&longitude=$longitude'));
+      final response = await http.get(
+          Uri.parse('$wsip/place?latitude=$latitude&longitude=$longitude'));
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -38,8 +46,8 @@ class ServerModel implements ServerRepository {
   @override
   IOWebSocketChannel connectToWebSocket(UserRole userRole) {
     String url = userRole == UserRole.driver
-        ? 'ws://maps-server-ndqjs3whnq-uc.a.run.app/connect/driver'
-        : 'ws://maps-server-ndqjs3whnq-uc.a.run.app/connect/passenger';
+        ? '$prefix/connect/driver'
+        : '$prefix/connect/passenger';
     _socket = IOWebSocketChannel.connect(Uri.parse(url));
     return _socket;
   }

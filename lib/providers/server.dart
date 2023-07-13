@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maps/interfaces/server.dart';
-import 'package:maps/models/location.dart';
 import 'package:maps/utils/role.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:maps/utils/connection_state.dart';
 
 class Server extends ChangeNotifier {
   final server = ServerRepository();
