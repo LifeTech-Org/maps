@@ -5,6 +5,7 @@ import 'package:maps/providers/user.dart';
 import 'package:maps/widgets/Search.dart';
 import 'package:maps/widgets/destination.dart';
 import 'package:provider/provider.dart';
+import 'package:maps/resources/popular_destinations.dart';
 
 class Destinations extends StatefulWidget {
   const Destinations({super.key});
@@ -21,89 +22,6 @@ class _DestinationsState extends State<Destinations> {
       search = place;
     });
   }
-
-  final List<Location> popular = [
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Adugbo",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Agbowo",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Zion Place",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    ),
-    Location(
-      latitude: 0.00,
-      longitude: 0.00,
-      place: Place(
-        name: "Home",
-        address: "Some kind of home address",
-      ),
-    )
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -129,12 +47,12 @@ class _DestinationsState extends State<Destinations> {
                       color: Theme.of(context).highlightColor,
                     ),
                     ListBox(
-                      locations: popular
+                      locations: popularDestinations
                           .where((location) => location.place!.name
                               .toLowerCase()
                               .contains(search.toLowerCase()))
                           .toList(),
-                      icon: Icons.favorite,
+                      icon: Icons.house_rounded,
                       title: 'Popular bus stops',
                     ),
                     Divider(
@@ -190,14 +108,14 @@ class ListBox extends StatelessWidget {
               return Column(
                 children: [
                   ListTile(
-                    leading: Icon(icon),
+                    leading: Icon(icon, color: Theme.of(context).primaryColor),
                     title: Text(
                       location.place!.name,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     subtitle: Text(
                       location.place!.address,
-                      style: Theme.of(context).textTheme.labelMedium,
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     dense: true,
                     onTap: () {

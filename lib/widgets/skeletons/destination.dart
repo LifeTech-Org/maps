@@ -22,8 +22,8 @@ class DestinationSkeleton extends StatelessWidget {
         ],
       ),
       actions: [
-        MyShimmer(width: 80, height: 20),
-        MyShimmer(width: 100, height: 20),
+        MyShimmer(width: 70, height: 20),
+        MyShimmer(width: 90, height: 20),
       ],
     );
   }

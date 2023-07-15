@@ -28,8 +28,10 @@ class _MyMapState extends State<MyMap> {
     zoom: 15.0, // Adjust the zoom level as needed
   );
   final LatLngBounds ibadanBounds = LatLngBounds(
-    southwest: LatLng(7.4330, 3.8050), // Southwest corner of the area
-    northeast: LatLng(7.4508, 4.147), // Northeast corner of the area
+    southwest: const LatLng(
+        7.429091240979396, 3.876443468034268), // Southwest corner of the area
+    northeast: const LatLng(
+        7.461057931090044, 3.9107388630509377), // Northeast corner of the area
   );
 
   final Set<Marker> _markers = {};
@@ -136,8 +138,6 @@ class _MyMapState extends State<MyMap> {
           } else {
             final locations = data["locations"];
             final List<Marker> tempMarkers = [];
-            final person = await BitmapDescriptor.fromAssetImage(
-                const ImageConfiguration(), 'images/person.png');
             for (dynamic marker in locations) {
               final latitude = marker['location']['latitude'].toString();
 
@@ -148,16 +148,18 @@ class _MyMapState extends State<MyMap> {
               double doubleLatitude = double.parse(latitude);
               double doubleLongitude = double.parse(longitude);
               double doubleHeading = double.parse(heading);
-              tempMarkers.add(Marker(
-                markerId: MarkerId(id),
-                position: LatLng(doubleLatitude, doubleLongitude),
-                infoWindow: InfoWindow(
-                  title:
-                      id, // Marker title // Additional text (shown when clicked)
+              tempMarkers.add(
+                Marker(
+                  markerId: MarkerId(id),
+                  position: LatLng(doubleLatitude, doubleLongitude),
+                  infoWindow: const InfoWindow(
+                    title:
+                        'Passenger', // Marker title // Additional text (shown when clicked)
+                  ),
+                  rotation: doubleHeading,
+                  icon: BitmapDescriptor.defaultMarkerWithHue(40),
                 ),
-                icon: person,
-                rotation: doubleHeading,
-              ));
+              );
             }
             setState(() {
               _markers.clear();
@@ -190,6 +192,17 @@ class _MyMapState extends State<MyMap> {
     if (user.connectionState == ConnectionState.done) {
       final location = user.location;
       if (location != null) {
+        final GoogleMapController newController =
+            await widget._controller.future;
+        final zoom = await newController.getZoomLevel();
+        await newController.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(location.latitude, location.longitude),
+              zoom: zoom,
+            ),
+          ),
+        );
         server.socket.ready.then((value) {
           server.socket.sink.add(
             json.encode({
@@ -203,18 +216,19 @@ class _MyMapState extends State<MyMap> {
         });
       }
     }
-    // if (location != null) {
-    //   // final GoogleMapController newController = await widget._controller.future;
-    //   // final zoom = await newController.getZoomLevel();
-    //   // await newController.animateCamera(
-    //   //   CameraUpdate.newCameraPosition(
-    //   //     CameraPosition(
-    //   //       target: LatLng(location.latitude, location.longitude),
-    //   //       zoom: zoom,
-    //   //     ),
-    //   //   ),
-    //   // );
-    // }
+  }
+
+  Marker userLocationMarker(User user) {
+    return Marker(
+      markerId: const MarkerId('Your Location'),
+      position: LatLng(user.location!.latitude, user.location!.longitude),
+      infoWindow: const InfoWindow(
+        title: "Your Location",
+
+        /// Additio nal text (shown when clicked)
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(200),
+    );
   }
 
   @override
@@ -232,15 +246,20 @@ class _MyMapState extends State<MyMap> {
       builder: ((context, user, child) {
         return GoogleMap(
           mapType: MapType.normal,
+          cameraTargetBounds: CameraTargetBounds(ibadanBounds),
           initialCameraPosition: _kGooglePlex,
           zoomControlsEnabled: false,
-          myLocationEnabled: true,
-          myLocationButtonEnabled: false,
+          buildingsEnabled: true,
           polylines: _polylines,
           markers: user.destination == null
-              ? {}
+              ? (user.location == null
+                  ? {}
+                  : {
+                      userLocationMarker(user),
+                    })
               : {
                   ..._markers,
+                  userLocationMarker(user),
                   Marker(
                     markerId: const MarkerId('Your destination'),
                     position: LatLng(user.destination!.latitude,
@@ -254,6 +273,8 @@ class _MyMapState extends State<MyMap> {
                   ),
                 },
           onTap: (LatLng latLng) async {
+            print(
+                'Latitude: ${latLng.latitude}, Longitude: ${latLng.longitude}');
             if (user.location == null) {
               final locationIsPermitted = await hasPermission();
               if (locationIsPermitted) {

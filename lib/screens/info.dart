@@ -15,34 +15,39 @@ class Info extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
+          // ListTile(
+          //   title: const Text(
+          //     'Licenses',
+          //     style: TextStyle(fontWeight: FontWeight.w500),
+          //   ),
+          //   subtitle: const Text('Our Licenses'),
+          //   leading: Icon(
+          //     Icons.content_paste,
+          //     color: Theme.of(context).primaryColor,
+          //   ),
+          //   trailing: const Icon(Icons.navigate_next_rounded),
+          //   onTap: () {},
+          // ),
           ListTile(
-            title: Text(
-              'Licenses',
-              style: TextStyle(fontWeight: FontWeight.w500),
-            ),
-            subtitle: Text('Our Licenses'),
-            leading: Icon(
-              Icons.content_paste,
-              color: Theme.of(context).primaryColor,
-            ),
-            trailing: Icon(Icons.navigate_next_rounded),
-            onTap: () {},
-          ),
-          ListTile(
-            title: Text(
+            title: const Text(
               'Contact Support',
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
-            subtitle: Text('We will get back to you soon'),
+            subtitle: const Text('Email us and we will reply shortly.'),
             leading: Icon(
               Icons.mail_outline,
               color: Theme.of(context).primaryColor,
             ),
-            trailing: Icon(Icons.navigate_next_rounded),
+            trailing: const Icon(Icons.navigate_next_rounded),
             onTap: () {},
           ),
-          SizedBox(
+          Divider(
+            endIndent: 40,
+            indent: 40,
+            color: Theme.of(context).highlightColor,
+          ),
+          const SizedBox(
             height: 40,
           ),
           Container(

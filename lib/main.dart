@@ -66,8 +66,8 @@ void main() async {
                       ),
                     ),
                     home: snapshot.hasData
-                        ? (snapshot.data! ? IntroPage() : MyApp())
-                        : Scaffold(
+                        ? (snapshot.data! ? const IntroPage() : const MyApp())
+                        : const Scaffold(
                             body: Placeholder(),
                           )),
               );
@@ -92,6 +92,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // getLocation();
+  }
+
+  @override
+  void dispose() {
+    Provider.of<User>(context, listen: false).stopListeningToLocation();
+    super.dispose();
   }
 
   // This widget is the root of your application.

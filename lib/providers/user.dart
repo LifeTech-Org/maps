@@ -24,22 +24,25 @@ class User extends ChangeNotifier {
     notifyListeners();
   }
 
+  late StreamSubscription<geo_location.LocationData>? _locationListener;
+
   Future<void> listenToLocation() async {
     bool isPermitted = await hasPermission();
     if (isPermitted) {
       geo_location.Location location = geo_location.Location();
-      location.onLocationChanged.listen((locationData) {
+      _locationListener = location.onLocationChanged.listen((locationData) {
         if (locationData.latitude != null && locationData.longitude != null) {
-          print({
-            "latitude": locationData.latitude,
-            "longitude": locationData.longitude,
-            "heading": locationData.heading
-          });
           _userModel.setLocation(locationData.latitude!,
               locationData.longitude!, locationData.heading!);
           notifyListeners();
         }
       });
+    }
+  }
+
+  void stopListeningToLocation() {
+    if (_userModel.location != null) {
+      _locationListener?.cancel();
     }
   }
 

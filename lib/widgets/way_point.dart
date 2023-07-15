@@ -46,32 +46,12 @@ class _WayPointState extends State<WayPoint> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your route will be redirected along this location. This will mostly affect the estimated time of arrival.',
+                    'Your route will be redirected along ${snapshot.data!['address']}.',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(
                     height: 10,
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.lock_clock,
-                        size: 16,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        'Estimated duration: ',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      Text(
-                        snapshot.data!['time'] ?? "*",
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                    ],
-                  )
                 ],
               ),
               actions: [
