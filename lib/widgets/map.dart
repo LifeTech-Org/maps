@@ -59,16 +59,9 @@ class _MyMapState extends State<MyMap> {
         .addListener(_listenToConnection);
   }
 
-  Future<BitmapDescriptor> driverMarker(int vehicleIndex) async {
-    final images = [
-      'images/car.png',
-      'images/car.png',
-      'images/car.png',
-      'images/car.png',
-      'images/car.png',
-    ];
+  Future<BitmapDescriptor> driverMarker() async {
     final image = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(), images.elementAt(vehicleIndex));
+        const ImageConfiguration(), 'images/car.png');
     return image;
   }
 
@@ -91,7 +84,7 @@ class _MyMapState extends State<MyMap> {
             double doubleLatitude = double.parse(latitude);
             double doubleLongitude = double.parse(longitude);
             double doubleHeading = double.parse(heading);
-            final icon = await driverMarker(1);
+            final icon = await driverMarker();
             tempMarkers.add(Marker(
               markerId: MarkerId(id),
               position: LatLng(doubleLatitude, doubleLongitude),

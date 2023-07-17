@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:maps/screens/privacy.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class Info extends StatelessWidget {
+class Info extends StatefulWidget {
   const Info({super.key});
+
+  @override
+  State<Info> createState() => _InfoState();
+}
+
+class _InfoState extends State<Info> {
+  Future<void> _launchURL() async {
+    final url = Uri.parse('mailto:lanre.jubilee102010@gmail.com');
+    if (!await launchUrl(url)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Something went wrong...')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About'),
+        title: const Text('App Info'),
         leading: IconButton(
           icon: const Icon(Icons.navigate_before_rounded),
           onPressed: () => {Navigator.of(context).pop()},
@@ -16,19 +31,6 @@ class Info extends StatelessWidget {
       body: ListView(
         children: [
           const SizedBox(height: 10),
-          // ListTile(
-          //   title: const Text(
-          //     'Licenses',
-          //     style: TextStyle(fontWeight: FontWeight.w500),
-          //   ),
-          //   subtitle: const Text('Our Licenses'),
-          //   leading: Icon(
-          //     Icons.content_paste,
-          //     color: Theme.of(context).primaryColor,
-          //   ),
-          //   trailing: const Icon(Icons.navigate_next_rounded),
-          //   onTap: () {},
-          // ),
           ListTile(
             title: const Text(
               'Contact Support',
@@ -40,7 +42,24 @@ class Info extends StatelessWidget {
               color: Theme.of(context).primaryColor,
             ),
             trailing: const Icon(Icons.navigate_next_rounded),
-            onTap: () {},
+            onTap: _launchURL,
+          ),
+          ListTile(
+            title: const Text(
+              'Privacy Policy',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            subtitle: const Text('How we handle your location data.'),
+            leading: Icon(
+              Icons.policy_outlined,
+              color: Theme.of(context).primaryColor,
+            ),
+            trailing: const Icon(Icons.navigate_next_rounded),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const Privacy(),
+              ));
+            },
           ),
           Divider(
             endIndent: 40,
@@ -53,7 +72,7 @@ class Info extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-              'This application represents a project by. No unnecceasry reproduction and some gibberish lorem ipsum will be included here.',
+              'This project is the intellectual property and creation of IBIKUNLE, A.O, a student of the University of Ibadan with Matriculation Number 227225. Prior permission from the owner is required before adapting or deploying this app.',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 16, color: Theme.of(context).dividerColor),

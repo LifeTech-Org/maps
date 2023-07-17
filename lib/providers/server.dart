@@ -13,15 +13,6 @@ class Server extends ChangeNotifier {
   IOWebSocketChannel get socket => server.socket;
 
   Future<void> connectWebSocket(UserRole userRole) {
-    // _socket = WebSocketChannel.connect(Uri.parse('ws://localhost:3000'));
-    // notifyListeners();
-    // return _socket.ready;
-    // _socket.ready.then((value) {
-    //   print('connected');
-    // }).catchError((e) {
-    //   print('Error');
-    // });
-    // _isConnected = true;
     final connect = server.connectToWebSocket(userRole);
     notifyListeners();
     return connect.ready;
@@ -31,12 +22,4 @@ class Server extends ChangeNotifier {
     server.socket.sink.close();
     notifyListeners();
   }
-
-  // void connect() {
-  //   server.connect();
-  // }
-
-  // void disconnect() {
-  //   server.disconnect();
-  // }
 }

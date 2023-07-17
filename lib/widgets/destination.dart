@@ -82,7 +82,7 @@ class _DestinationState extends State<Destination> {
                       child: user.connectionState == ConnectionState.waiting
                           ? const MyShimmer(
                               height: 20,
-                              width: 70,
+                              width: 60,
                             )
                           : const Text('Cancel'));
                 }),
@@ -127,7 +127,7 @@ class _DestinationState extends State<Destination> {
                     child: user.connectionState == ConnectionState.waiting
                         ? const MyShimmer(
                             height: 20,
-                            width: 90,
+                            width: 80,
                           )
                         : const Text('Set as destination'),
                   );

@@ -1,0 +1,10 @@
+flutter_native_splash:
+  color: "#ffffff"
+  image: images/go_smart.png
+  branding: images/branding.png
+
+  android_12:
+    image: images/go_smart.png
+    icon_background_color: "#ffffff"
+
+  web: false

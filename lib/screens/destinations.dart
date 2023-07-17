@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:maps/models/location.dart';
 import 'package:maps/providers/server.dart';
 import 'package:maps/providers/user.dart';
+import 'package:maps/utils/role.dart';
 import 'package:maps/widgets/Search.dart';
 import 'package:maps/widgets/destination.dart';
+import 'package:maps/widgets/edit_profile.dart';
 import 'package:provider/provider.dart';
 import 'package:maps/resources/popular_destinations.dart';
 
@@ -124,12 +126,29 @@ class ListBox extends StatelessWidget {
                           Provider.of<Server>(context, listen: false);
                       if (user.destination != null) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text('You are on a destination already!'),
+                          content:
+                              const Text('You are on a destination already!'),
                           action: SnackBarAction(
                               label: 'Stop',
                               onPressed: () => server.closeWebSocket()),
                         ));
                       } else {
+                        if (user.role == UserRole.driver &&
+                            user.vehicleIndex == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: const Text(
+                                'Please set up your driving profile first!'),
+                            action: SnackBarAction(
+                                label: 'Set Profile',
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const EditProfile(),
+                                  );
+                                }),
+                          ));
+                          return;
+                        }
                         showDialog(
                           context: context,
                           barrierDismissible: false,
